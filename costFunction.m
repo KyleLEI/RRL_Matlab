@@ -5,7 +5,7 @@ function [ J, grad ] = costFunction( Xn, X, theta)
     delta = 0.001;
         
     d = size(X,2);
-    M= (length(theta)-2)/d;
+    M = (length(theta)-2)/d;
     T = length(X) - M;
     
     syms a
@@ -22,14 +22,14 @@ function [ J, grad ] = costFunction( Xn, X, theta)
 
 
     dFt = zeros(d*M+2,T+1);
-    for i = 2:T+1,
+    for i = 2:T+1
         xt = [1; reshape(Xn(i-1:i+M-2,:),[],1); Ft(i-1)];
         dFt(:,i) = (1 - tanh(theta' * xt) ^ 2) * (xt + theta(d*M+2,1)*dFt(:,i-1));
     end
     
     
     dRtFt = -1 * miu * delta * sign(Ft(2:end)-Ft(1:T));
-    dRtFtt = miu * reshape(X(M+1:T+M),[],1) + miu * delta * sign(Ft(2:end)-Ft(1:T));
+    dRtFtt = miu * X(M+1:T+M,1) + miu * delta * sign(Ft(2:end)-Ft(1:T));
     A = sum(Ret) / T;
     B = sum(Ret.*Ret) / T;
 
