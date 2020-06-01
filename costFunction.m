@@ -4,7 +4,8 @@ function [ J, grad ] = costFunction( Xn, X, theta)
     miu = 1;
     delta = 0.001;
         
-    M = length(theta) - 2;
+    d = size(X,2);
+    M= (length(theta)-2)/d;
     T = length(X) - M;
     
     syms a
@@ -20,15 +21,15 @@ function [ J, grad ] = costFunction( Xn, X, theta)
     J = sharp * -1;
 
 
-    dFt = zeros(M+2,T+1);
+    dFt = zeros(d*M+2,T+1);
     for i = 2:T+1,
-        xt = [1; Xn(i-1:i+M-2); Ft(i-1)];
-        dFt(:,i) = (1 - tanh(theta' * xt) ^ 2) * (xt + theta(M+2,1)*dFt(:,i-1));
+        xt = [1; reshape(Xn(i-1:i+M-2,:),[],1); Ft(i-1)];
+        dFt(:,i) = (1 - tanh(theta' * xt) ^ 2) * (xt + theta(d*M+2,1)*dFt(:,i-1));
     end
     
     
     dRtFt = -1 * miu * delta * sign(Ft(2:end)-Ft(1:T));
-    dRtFtt = miu * X(M+1:T+M) + miu * delta * sign(Ft(2:end)-Ft(1:T));
+    dRtFtt = miu * reshape(X(M+1:T+M),[],1) + miu * delta * sign(Ft(2:end)-Ft(1:T));
     A = sum(Ret) / T;
     B = sum(Ret.*Ret) / T;
 
@@ -36,8 +37,10 @@ function [ J, grad ] = costFunction( Xn, X, theta)
     %prefix = repmat((1/(- A^2 + B)^(1/2) + A^2/(B - A^2)^(3/2))/M, M, 1) + (-A/(2*(B - A^2)^(3/2))) * 2 * Ret / M
     %prefix = ones(M,1)
     
-    grad = sum(repmat(prefix', M+2, 1) .* (repmat(dRtFt', M+2, 1) .* dFt(:,2:end) + repmat(dRtFtt', M+2, 1) .* dFt(:,1:T)), 2);
+    grad = sum(repmat(prefix', d*M+2, 1) .* (repmat(dRtFt', d*M+2, 1) .* dFt(:,2:end) + repmat(dRtFtt', d*M+2, 1) .* dFt(:,1:T)), 2);
     grad = grad * -1;
 
+    grad = double(grad);
+    J = double(J);
 end
 
